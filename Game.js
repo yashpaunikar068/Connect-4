@@ -1,5 +1,6 @@
 import './App.css';
 import React from "react";
+import Row from './row.js';
 
 class App extends React.Component {
     constructor(props) {
@@ -14,17 +15,16 @@ class App extends React.Component {
         message: ''
       };
       
-      // Bind play function to App component
       this.play = this.play.bind(this);
     }
-    
-    // Starts new game
+
     generateBoard() {
-      // Create a blank 6x7 matrix
       let board = [];
       for (let r = 0; r < 6; r++) {
         let row = [];
-        for (let c = 0; c < 7; c++) { row.push(null) }
+        for (let c = 0; c < 7; c++) { 
+          row.push(null) 
+        }
         board.push(row);
       }
       
@@ -42,33 +42,28 @@ class App extends React.Component {
     
     play(c) {
       if (!this.state.gameOver) {
-        // Place piece on board
         let board = this.state.board;
         for (let r = 5; r >= 0; r--) {
-          if (!board[r][c]) {
+          if (board[r][c] == null) {
             board[r][c] = this.state.currentPlayer;
             break;
           }
         }
   
-        // Check status of board
-        let result = this.checkAll(board);
+        let result = this.result(board);
         if (result === this.state.player1) {
           this.setState({ board, gameOver: true, message: 'Player 1 wins!' });
           alert('Player 1 Wins!')
         } else if (result === this.state.player2) {
           this.setState({ board, gameOver: true, message: 'Player 2 wins!' });
           alert('Player 2 Wins!')
-        } else if (result === 'draw') {
-          this.setState({ board, gameOver: true, message: 'Draw game.' });
         } else {
           this.setState({ board, currentPlayer: this.togglePlayer() });
         }
       } 
     }
     
-    checkVertical(board) {
-      // Check only if row is 3 or greater
+    vertical(board) {
       for (let r = 3; r < 6; r++) {
         for (let c = 0; c < 7; c++) {
           if (board[r][c]) {
@@ -82,8 +77,7 @@ class App extends React.Component {
       }
     }
     
-    checkHorizontal(board) {
-      // Check only if column is 3 or less
+    horizontal(board) {
       for (let r = 0; r < 6; r++) {
         for (let c = 0; c < 4; c++) {
           if (board[r][c]) {
@@ -96,9 +90,8 @@ class App extends React.Component {
         }
       }
     }
-    
-    checkDiagonalRight(board) {
-      // Check only if row is 3 or greater AND column is 3 or less
+
+    diagonalRight(board) {
       for (let r = 3; r < 6; r++) {
         for (let c = 0; c < 4; c++) {
           if (board[r][c]) {
@@ -112,8 +105,7 @@ class App extends React.Component {
       }
     }
     
-    checkDiagonalLeft(board) {
-      // Check only if row is 3 or greater AND column is 3 or greater
+    diagonalLeft(board) {
       for (let r = 3; r < 6; r++) {
         for (let c = 3; c < 7; c++) {
           if (board[r][c]) {
@@ -127,19 +119,8 @@ class App extends React.Component {
       }
     }
     
-    checkDraw(board) {
-      for (let r = 0; r < 6; r++) {
-        for (let c = 0; c < 7; c++) {
-          if (board[r][c] === null) {
-            return null;
-          }
-        }
-      }
-      return 'draw';    
-    }
-    
-    checkAll(board) {
-      return this.checkVertical(board) || this.checkDiagonalRight(board) || this.checkDiagonalLeft(board) || this.checkHorizontal(board) || this.checkDraw(board);
+    result(board) {
+      return this.vertical(board) || this.horizontal(board) || this.diagonalLeft(board) || this.diagonalRight(board);
     }
     
     
@@ -152,7 +133,7 @@ class App extends React.Component {
             <thead>
             </thead>
             <tbody>
-              {this.state.board.map((row, i) => (<Row key={i} row={row} play={this.play} />))}
+              {this.state.board.map((row) => (<Row row={row} play={this.play} />))}
             </tbody>
           </table>
           <br/>
@@ -160,37 +141,11 @@ class App extends React.Component {
           <button className="button" onClick={() => {this.generateBoard()}}>Play Game</button>
           <br/>
 
-          
           <p className="message">{this.state.message}</p>
         </div>
       );
     }
   }
   
-  // Row component
-  const Row = ({ row, play }) => {
-    return (
-      <tr>
-        {row.map((cell, i) => <Cell key={i} value={cell} columnIndex={i} play={play} />)}
-      </tr>
-    );
-  };
-  
-  const Cell = ({ value, columnIndex, play }) => {
-    let color = 'white';
-    if (value === 1) {
-      color = 'red';
-    } else if (value === 2) {
-      color = 'yellow';
-    }
-      
-    return (
-      <td>
-        <div className="cell" onClick={() => {play(columnIndex)}}>
-          <div className={color}></div>
-        </div>
-      </td>
-    );
-  };
 
   export default App;
